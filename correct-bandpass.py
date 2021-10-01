@@ -207,7 +207,7 @@ def correctprofile(dataset, xmin=None, xmax=None):
     plt.show()
 
 
-def plotprofiles(dataset, min, max, save=False, labx=0.7, fn=""):
+def plotprofiles(dataset, min, max, save=False, fn=""):
     """
     Function for plotting profiles and their relative differences
     """
@@ -310,12 +310,12 @@ def plotprofiles(dataset, min, max, save=False, labx=0.7, fn=""):
     ax.set_xlim(min, max)
     ax2.set_xlim(min, max)# + (max - min) * shift)
     ax2.set_xlabel(r"Frequency, $\nu$ [GHz]")
-    ax.spines["bottom"].set_visible(True)
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax2.spines["bottom"].set_visible(True)
-    ax2.spines["top"].set_visible(False)
-    ax2.spines["right"].set_visible(False)
+    #ax.spines["bottom"].set_visible(True)
+    #ax.spines["top"].set_visible(False)
+    #ax.spines["right"].set_visible(False)
+    #ax2.spines["bottom"].set_visible(True)
+    #ax2.spines["top"].set_visible(False)
+    #ax2.spines["right"].set_visible(False)
 
     ax2.set_ylim(-1, 1)
     ax.set_ylabel(r"Normalized Bandpass")
@@ -361,11 +361,11 @@ def fmt(x, pos):
 if __name__ == "__main__":
     if not os.path.exists(outdir):
         os.makedirs(outdir)
-
-    plotprofiles("30", 23, 36.0, labx=0.665, save=True)
-    plotprofiles("44", 38, 50.1, labx=0.745, save=True)
-    plotprofiles("70", 57, 83, labx=0.7,   save=True)
-    plotprofiles("70", 77, 82.5, labx=0.7,   save=True, fn="_zoom")
+    save=False
+    plotprofiles("30", 23, 36.0,save=save)
+    plotprofiles("44", 38, 50.1,save=save)
+    plotprofiles("70", 57, 83,  save=save)
+    plotprofiles("70", 77, 82.5,   save=save, fn="_zoom")
 
     #correctprofile("30", xmin=20, xmax=40)
     #correctprofile("44", xmin=35, xmax=55)
