@@ -309,7 +309,7 @@ def plotprofiles(dataset, min, max, save=False, labx=0.7, fn=""):
     # Adjust plot
     ax.set_xlim(min, max)
     ax2.set_xlim(min, max)# + (max - min) * shift)
-    plt.xlabel(r"Frequency, $\nu$ [GHz]")
+    ax2.set_xlabel(r"Frequency, $\nu$ [GHz]")
     ax.spines["bottom"].set_visible(True)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
