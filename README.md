@@ -1,4 +1,4 @@
-# BeyondPlanck_LFI-bandpass
+# BeyondPlanck_LFI_bandpass
 
 ## Description
 This is a script for visualising bandpass profiles for the BeyondPlanck project and creating new, processed profiles.
