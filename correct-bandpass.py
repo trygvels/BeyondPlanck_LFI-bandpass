@@ -15,6 +15,7 @@ https://pla.esac.esa.int/#docsw
 
 path = "./"
 hdus = fits.open(path+'LFI_RIMO_R3.31.fits')
+path = "../"
 outdir = "corrected-bandpass/"
 labels = {
     "30": ["27M", "27S", "28M", "28S",],
@@ -194,7 +195,7 @@ def correctprofile(dataset, xmin=None, xmax=None):
         right=False,
         direction="in",
     )
-    sax.set_xlabel(r"$\nu$ [GHz]")
+    sax.set_xlabel(r"Frequency, $\nu$ [GHz]")
     sax.set_ylabel(rf"{dataset} GHz Normalized Bandpass")
     if True:
         plt.savefig(
@@ -216,8 +217,8 @@ def plotprofiles(dataset, min, max, save=False, labx=0.7, fn=""):
     plt.rc(
         "text.latex", preamble=r"\usepackage{sfmath}",
     )
-
-    width = 8
+    from cycler import cycler
+    plt.rcParams['axes.prop_cycle'] = cycler(color=plt.get_cmap('tab20').colors)
     f, (ax, ax2) = plt.subplots(
         2,
         1,
@@ -236,7 +237,8 @@ def plotprofiles(dataset, min, max, save=False, labx=0.7, fn=""):
         profs.append(bp)
         bpx = np.loadtxt(f"{path}bpx_{r}.dat")
         xprofs.append(bpx)
-        ls = "--" if i % 2 else "-"
+        #ls = "--" if i % 2 else "-"
+        ls = "-"
         # ax.plot(bpx, bp, label=r, color=f"C{c}", linestyle=ls,linewidth=1)
         ax.semilogy(
             bpx,
@@ -245,22 +247,23 @@ def plotprofiles(dataset, min, max, save=False, labx=0.7, fn=""):
             color=f"C{c}",
             linestyle=ls,
             linewidth=1,
-            alpha=0.8,
+            alpha=0.9,
             zorder=zorder,
         )
-        if i % 2:
-            c += 1
+        #if i % 2:
+        #    c += 1
+        c += 1
         zorder -= 1
     # ax.plot(xprofs[0],np.median(profs,axis=0), color=f"black", linestyle="-",linewidth=2,zorder=-1, label="Mean")
-    ax.semilogy(
+    mean_line= ax.semilogy(
         xprofs[0],
         np.mean(profs, axis=0),
         color=f"black",
         linestyle="-",
-        linewidth=2,
-        zorder=-1,
-        label="Mean",
-        alpha=0.8,
+        linewidth=1,
+        zorder=100,
+        #label="Mean",
+        alpha=0.9,
     )
     plt.yticks(rotation=90, va="center")
     aprofs = np.array(profs)
@@ -271,44 +274,49 @@ def plotprofiles(dataset, min, max, save=False, labx=0.7, fn=""):
 
     zorder = len(labels[dataset])
     for i, x in enumerate(diffs):
-        ls = "--" if i % 2 else "-"
         ax2.plot(
             xprofs[i],
             x / np.max(diffs),
             color=f"C{c}",
-            linestyle=ls,
             linewidth=1,
             alpha=0.8,
             zorder=zorder,
         )
-        if i % 2:
-            c += 1
+        c += 1
         zorder -= 1
 
     ax.set_ylim(1e-4, 0.5)
-    if dataset != "70":
+    xpos=0.5
+    if dataset=="30":
+        xpos=0.6
+        ncol=2
+    elif dataset=="44":
+        ncol=3
+    elif dataset=="70":
         ncol = 3
-        shift = 0.2
-    else:
-        ncol = 2
-        shift = 0.0
+    
+    # Make legend
+    ax.legend(bbox_to_anchor=(xpos, 0.5),fontsize=7,ncol=ncol, frameon=False, handlelength=1.5)
+    # Add separate mean legend
+    ax3 = ax.twinx()
+    ax3.get_yaxis().set_visible(False)
+    ax3.spines["top"].set_visible(False)
+    ax3.spines["bottom"].set_visible(False)
+    ax3.spines["left"].set_visible(False)
+    ax3.spines["right"].set_visible(False)
+    ax3.legend(mean_line, [r"Mean"], bbox_to_anchor=(0.6175, 0.58),fontsize=7,ncol=ncol, frameon=False, handlelength=1.5)
 
-    # ax.legend(frameon=False, ncol=ncol,fontsize=8)#,mode="expand")
-    # ax.legend(bbox_to_anchor=(.8,0.5), loc="center left", borderaxespad=0, fontsize=8)
-    ax.legend(frameon=False, fontsize=7, loc="upper right", bbox_to_anchor=(1.1, 1.05))
-    ax.set_xlim(min, max + (max - min) * shift)
-    ax2.set_xlim(min, max + (max - min) * shift)
-    plt.xlabel(r"$\nu$ [GHz]")
+    # Adjust plot
+    ax.set_xlim(min, max)
+    ax2.set_xlim(min, max)# + (max - min) * shift)
+    plt.xlabel(r"Frequency, $\nu$ [GHz]")
     ax.spines["bottom"].set_visible(True)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
-    # ax.spines["left"].set_visible(False)
     ax2.spines["bottom"].set_visible(True)
     ax2.spines["top"].set_visible(False)
     ax2.spines["right"].set_visible(False)
-    # ax2.spines["left"].set_visible(False)
-    # amp = np.max(np.abs(np.array(diffs)))
-    # ax2.set_ylim(-amp,amp)
+
     ax2.set_ylim(-1, 1)
     ax.set_ylabel(r"Normalized Bandpass")
     ax2.set_ylabel(r"$x-\bar{x}$")
@@ -319,11 +327,6 @@ def plotprofiles(dataset, min, max, save=False, labx=0.7, fn=""):
     ax.set_yticklabels(
         yticks, rotation=90, va="center",
     )
-    # ax.yticks(,rotation=90,va='center')
-    # ax.set_yticklabels(ax.get_yticklabels(), rotation=90,va="center",)
-    # ax.locator_params(axis='y', nbins=6)
-    # ax2.locator_params(axis='y', nbins=3)
-    # ax2.tick_params(axis=u'x', which=u'both',length=0)
     ax.tick_params(axis="x", which="both", direction="in")
     ax2.tick_params(axis="x", which="both", direction="in")
     ax.tick_params(axis="y", which="both", direction="in")
@@ -331,9 +334,6 @@ def plotprofiles(dataset, min, max, save=False, labx=0.7, fn=""):
 
     ax.axhline(y=0, color="black", alpha=0.5, linestyle=":", linewidth=1)
     ax2.axhline(y=0, color="black", alpha=0.5, linestyle=":", linewidth=1)
-    # plt.text(labx,0.9, f"{dataset} GHz", fontsize=fontsize,  horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
-    # ax.grid(axis="x",alpha=0.7)
-    # ax2.grid(axis="x",alpha=0.7)
     if save:
         plt.savefig(
             path + outdir + f"bpslog_{dataset}GHz{fn}.pdf",
@@ -341,7 +341,7 @@ def plotprofiles(dataset, min, max, save=False, labx=0.7, fn=""):
             bbox_inches="tight",
             pad_inches=0.02,
         )
-    plt.show()
+    #plt.show()
 
 
 def fmt(x, pos):
@@ -362,11 +362,11 @@ if __name__ == "__main__":
     if not os.path.exists(outdir):
         os.makedirs(outdir)
 
-    plotprofiles("30", 23, 35, labx=0.665, save=True)
+    plotprofiles("30", 23, 36.0, labx=0.665, save=True)
     plotprofiles("44", 38, 50.1, labx=0.745, save=True)
-    plotprofiles("70", 57, 86.2, labx=0.7, save=True)
-    plotprofiles("70", 77, 83.5, labx=0.7, save=True, fn="_zoom")
+    plotprofiles("70", 57, 83, labx=0.7,   save=True)
+    plotprofiles("70", 77, 82.5, labx=0.7,   save=True, fn="_zoom")
 
-    correctprofile("30", xmin=20, xmax=40)
-    correctprofile("44", xmin=35, xmax=55)
-    correctprofile("70", xmin=55, xmax=90)
+    #correctprofile("30", xmin=20, xmax=40)
+    #correctprofile("44", xmin=35, xmax=55)
+    #correctprofile("70", xmin=55, xmax=90)
